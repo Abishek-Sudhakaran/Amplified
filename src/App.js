@@ -1,116 +1,104 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import Table from './components/Table'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
-import { createTodo, deleteTodo } from './graphql/mutations'
-import { listTodos } from './graphql/queries'
-import { Query } from 'react-apollo'
+import { createEmployee, updateEmployee, deleteEmployee } from './graphql/mutations'
+import { listEmployees } from './graphql/queries'
 import gql from 'graphql-tag'
-import awsExports from "./aws-exports";
-Amplify.configure(awsExports);
+import { useQuery } from "react-apollo-hooks";
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-const initialState = { name: '', description: '' }
-const FEED_QUERY = gql`
-  {
-    listTodos {
-      items {
-        id
-        name
-        description
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`
+const tableHeader = () => {
+  return [
+    { label: "Employee Id", accesor: "id", minWidth: '30%' },
+    { label: "Name", accesor: "fullname", minWidth: '20%' },
+    { label: "Skills", accesor: "skillset", minWidth: '30%' },
+  ];
+};
+
 const App = () => {
-  const [formState, setFormState] = useState(initialState)
-  const [todos, setTodos] = useState([])
+  const [open, setOpen] = React.useState(false);
+  const { loading, error, data } = useQuery(gql(listEmployees));
 
-  useEffect(() => {
-    // fetchTodos()
-  }, [])
+  if (loading) return 'Loading...';
+  if (error) return `Error! ${error.message}`;
 
-  function setInput(key, value) {
-    setFormState({ ...formState, [key]: value })
+  const employees = data.listEmployees.items;
+  employees.map((emp) => {
+    emp.fullname = `${emp.firstname} ${emp.lastname}`
+    emp.skillset = emp.skills.map((skills) => skills.name)
+  })
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const tableBody = () => {
+    return <div style={{ width: '80%' }}>
+      <Table
+        headers={tableHeader()}
+        rows={employees}
+        actions={[
+          { name: 'Edit', action: handleClickOpen },
+          { name: 'Delete', action: () => { } }
+        ]}
+      />
+    </div>
+
   }
 
-  async function fetchTodos() {
-    try {
-      const todoData = await API.graphql(graphqlOperation(listTodos, { limit: 2 }))
-      const todos = todoData.data.listTodos.items
-      setTodos(todos)
-    } catch (err) { console.log('error fetching todos', err) }
-  }
-
-  async function addTodo() {
-    try {
-      if (!formState.name || !formState.description) return
-      const todo = { ...formState }
-      // setTodos([...todos, todo])
-      setFormState(initialState)
-      console.log(todo)
-      await API.graphql(graphqlOperation(createTodo, { input: todo })).then((data) => {
-        console.log(data)
-      })
-    } catch (err) {
-      console.log('error creating todo:', err)
-    }
-  }
-  const deleteItem = async (id) => {
-    await API.graphql(graphqlOperation(deleteTodo, { input: { id: id } })).then((data) => {
-      console.log(data)
-    }).catch((e) => (
-      console.log(e)
-    ))
-  }
   return (
-    <div style={styles.container}>
-      <h2>Amplify Todos</h2>
-      <input
-        onChange={event => setInput('name', event.target.value)}
-        style={styles.input}
-        value={formState.name}
-        placeholder="Name"
-      />
-      <input
-        onChange={event => setInput('description', event.target.value)}
-        style={styles.input}
-        value={formState.description}
-        placeholder="Description"
-      />
-      <button style={styles.button} onClick={addTodo}>Create Todo</button>
-
-      <Query query={FEED_QUERY}>
-        {({ loading, error, data }) => {
-          if (loading) return <div>Fetching</div>
-          if (error) {
-            console.log(error)
-            return <div>Error</div>
-          }
-          const todos = data.listTodos.items
-          {
-            return todos.map((todo, index) => {
-              return <div key={todo.id ? todo.id : index} style={styles.todo} onClick={() => deleteItem(todo.id)}>
-                <p style={styles.todoName}>{todo.name}</p>
-                <p style={styles.todoDescription}>{todo.description}</p>
-              </div>
-            })
-          }
-        }}
-      </Query>
-
-
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      {tableBody()}
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Employee Details</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="First Name"
+            type="email"
+            fullWidth
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Last Name"
+            type="email"
+            fullWidth
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Skills"
+            type="email"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }
 
-const styles = {
-  container: { width: 400, margin: '0 auto', display: 'flex', flex: 1, flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  todo: { marginBottom: 15, backgroundColor: 'red' },
-  input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
-  todoName: { fontSize: 20, fontWeight: 'bold' },
-  todoDescription: { marginBottom: 0 },
-  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
-}
+
 
 export default App

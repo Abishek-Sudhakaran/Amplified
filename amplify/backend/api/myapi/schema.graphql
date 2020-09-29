@@ -3,3 +3,17 @@ type Todo @model {
   name: String!
   description: String
 }
+type Employee @model {
+  id: ID!
+  firstname: String!
+  lastname: String,
+  skills:[Skill!]! 
+}
+
+type Skill{
+  id:ID,
+  name:String!
+}
+
+
+
