@@ -6,10 +6,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { listSkills, getEmployee } from '../../graphql/queries'
+import { createEmployee, updateEmployee, deleteEmployee } from '../../graphql/mutations'
 import gql from 'graphql-tag'
-import { useQuery } from "react-apollo-hooks";
+import { useQuery, useMutation } from "react-apollo-hooks";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import { Grid } from "@material-ui/core";
 
 const initialState = {
   firstname: '',
@@ -18,66 +20,92 @@ const initialState = {
 }
 
 const EmployeeForm = (props) => {
-  const { handleClose, selectedId, throwAlert, delEmployee, addOrUpdateEmp } = props;
-  const { loading, error, data } = useQuery(gql(listSkills));
+  const { handleClose, selectedId, throwAlert, employeeAction } = props;
   const [state, setState] = React.useState(initialState);
-  const { data: empData } = useQuery(gql(getEmployee), {
+  const [err, setErr] = React.useState({ firstname: '' })
+  const { data: skillData } = useQuery(gql(listSkills));
+  const { data: empData, loading, error, } = useQuery(gql(getEmployee), {
     variables: {
       id: selectedId,
     },
     skip: !selectedId
   });
+  const deleteEmp = useMutation(gql(deleteEmployee));
+  const addEmp = useMutation(gql(createEmployee));
+  const updateEmp = useMutation(gql(updateEmployee));
 
   React.useEffect(() => {
-    console.log(selectedId)
     if (empData.getEmployee) {
       const { id, firstname, lastname, skills } = empData.getEmployee
-      setState({ id, firstname, lastname, skills: skills.map(({ id, name }) => ({ id, name })) })
+      setState({
+        id, firstname, lastname, skills: skills.length !== 0 ?
+          skills.map(({ id, name }) => ({ id, name })) : []
+      })
     }
-  }, [empData, data])
+  }, [empData])
 
   if (loading) return '';
   if (error) return `Error! ${error.message}`;
 
-  const skills = data.listSkills.items.map(({ id, name }) => ({ id, name }))
+  const skillsSeed = skillData.listSkills ? skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
 
   const onDialogClose = () => {
     setState(initialState)
     handleClose()
   }
   const renderTextField = (label, key) => (
-    <TextField
-      autoFocus
-      margin="dense"
-      label={label}
-      onChange={(event) => {
-        const val = { ...state }
-        val[key] = event.target.value
-        setState(val)
-      }}
-      value={state[key]}
-      fullWidth
-    />
+    <Grid item xs={12} >
+      <TextField
+        id={key}
+        error={err[key] ? true : false}
+        margin="dense"
+        label={label}
+        onChange={(event) => {
+          const val = { ...state }
+          val[key] = event.target.value
+          setState(val)
+          if (err[key]) { setErr({ ...err, firstname: '' }) }
+        }}
+        value={state[key]}
+        helperText={err[key]}
+        fullWidth
+      />
+    </Grid>
+
   );
   const renderFormContent = () => (
     <DialogContent>
-      {renderTextField("First Name", 'firstname')}
-      {renderTextField("Last Name", 'lastname')}
-      <Autocomplete
-        multiple
-        id="tags-standard"
-        options={skills}
-        getOptionLabel={(option) => option.name}
-        onChange={(event, value) => setState({ ...state, skills: value })}
-        value={state.skills}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="standard"
-            label="Skills"
+      <Grid
+        spacing={2}
+        justify={'center'}
+        container
+      >
+        {renderTextField("First Name", 'firstname')}
+        {renderTextField("Last Name", 'lastname')}
+        <Grid item xs={12} >
+          <Autocomplete
+            multiple
+            id="tags-standard"
+            options={skillsSeed}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, value) => setState({
+              ...state,
+              skills: value
+            })
+            }
+            value={state.skills}
+            getOptionSelected={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="standard"
+                label="Skills"
+              />
+            )}
           />
-        )}
-      />
+        </Grid>
+      </Grid>
+
 
     </DialogContent>
   )
@@ -88,6 +116,19 @@ const EmployeeForm = (props) => {
       </DialogContentText>
     </DialogContent>
   )
+
+  const triggerEmployeeAction = () => {
+    if (throwAlert) {
+      employeeAction(deleteEmp, { id: selectedId })
+    } else {
+      if (state.firstname.trim().length === 0) {
+        setErr({ ...err, firstname: 'Name is Required' })
+        return;
+      }
+      selectedId !== '0' ? employeeAction(updateEmp, state)
+        : employeeAction(addEmp, state)
+    }
+  }
 
   return (
     <Dialog open={true} onClose={onDialogClose} aria-labelledby="form-dialog-title">
@@ -100,14 +141,13 @@ const EmployeeForm = (props) => {
         <Button onClick={onDialogClose} color="primary">
           Cancel
          </Button>
-        {throwAlert ?
-          <Button onClick={delEmployee} color="primary">
-            Delete
-           </Button> :
-          <Button onClick={() => addOrUpdateEmp(state)} color="primary">
-            {selectedId !== '0' ? 'Update' : 'Create'}
-          </Button>
-        }
+
+        <Button
+          onClick={triggerEmployeeAction}
+          color="primary">
+          {throwAlert ? 'Yes' : selectedId !== '0' ? 'Update' : 'Create'}
+        </Button>
+
       </DialogActions>
     </Dialog>
   )

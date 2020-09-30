@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import EmployeeList from "./pages/employee/List";
-const App = () => {
+import { Switch, Route } from 'react-router-dom'
+import Layout from './components/Layout'
 
+
+const App = (props) => {
+  console.log(props)
   return (
-    <EmployeeList />
+    <Layout>
+      <Switch>
+        <Route exact path="/employees" component={EmployeeList} />
+      </Switch>
+    </Layout>
   )
 }
-
-
 
 export default App

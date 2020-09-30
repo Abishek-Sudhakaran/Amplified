@@ -1,4 +1,4 @@
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import { withStyles, makeStyles,createStyles } from "@material-ui/core/styles";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 
@@ -15,13 +15,13 @@ const StyledTableCell = withStyles(theme => ({
 
 const StyledTableRow = withStyles(theme => ({
     root: {
-        "&:nth-of-type(odd)": {
+        "&:nth-of-type(even)": {
             backgroundColor: theme.palette.background.default
         }
     }
 }))(TableRow);
 
-const useStyles = makeStyles(theme => ({
+const tableStyles = makeStyles(theme => ({
     table: {
         width: "100% !important"
     },
@@ -30,5 +30,21 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+const appBarStyles = makeStyles(() =>
+    createStyles({
+        root: {
+            flexGrow: 1,
+            marginBottom: 20
+        },
+        title: {
+            flexGrow: 1,
+        },
+        link: {
+            color: '#FFF',
+            textDecoration: 'none'
+        }
+    }),
+);
 
-export { StyledTableCell, StyledTableRow, useStyles }
+
+export { StyledTableCell, StyledTableRow, tableStyles,appBarStyles }

@@ -5,19 +5,13 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import { StyledTableCell, StyledTableRow, useStyles } from "./TableStyles";
+import { StyledTableCell, StyledTableRow, tableStyles } from "./Styles";
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
-import TablePaginationActions from "./Pagination";
-import TableFooter from "@material-ui/core/TableFooter";
-import TablePagination from "@material-ui/core/TablePagination";
-
-
-
 
 export default function TableViewWithAction(props) {
-  const classes = useStyles();
+  const classes = tableStyles();
   const {
     headers,
     rows,

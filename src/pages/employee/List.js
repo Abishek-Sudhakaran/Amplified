@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Table from '../../components/Table'
-import Amplify, { API, graphqlOperation } from 'aws-amplify'
-import { createEmployee, updateEmployee, deleteEmployee } from '../../graphql/mutations'
 import { listEmployees } from '../../graphql/queries'
 import gql from 'graphql-tag'
-import { useQuery, useMutation } from "react-apollo-hooks";
+import { useQuery } from "react-apollo-hooks";
 import EmployeeForm from './Form'
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
@@ -24,15 +22,14 @@ const EmployeeList = () => {
     const { open, selectedId, throwAlert } = state
     const { loading, error, data, refetch } = useQuery(gql(listEmployees));
     const [employees, setEmployeeList] = React.useState([])
-    const deleteEmp = useMutation(gql(deleteEmployee));
-    const addEmp = useMutation(gql(createEmployee));
-    const updateEmp = useMutation(gql(updateEmployee));
 
     React.useEffect(() => {
         if (data.listEmployees) {
             data.listEmployees.items.map((emp) => {
                 emp.fullname = `${emp.firstname} ${emp.lastname}`
-                emp.skillset = emp.skills.map((skills) => skills.name)
+                emp.skillset = emp.skills.map((skills, i) => {
+                    return `${skills.name}${i + 1 === emp.skills.length ? '' : ', '}`
+                })
             })
             setEmployeeList(data.listEmployees.items)
         }
@@ -46,21 +43,9 @@ const EmployeeList = () => {
     const handleClickOpen = (emp, alert) => {
         setState({ open: true, selectedId: emp.id, throwAlert: alert || false })
     };
-    const delEmployee = async () => {
-        await deleteEmp({
-            variables: {
-                input: { id: selectedId },
-            }
-        })
-        refetch()
-        handleClose()
-    }
-    const addOrUpdateEmp =async (input) => {
-        if (input.id) {
-            await updateEmp({ variables: { input } })
-        } else {
-            await addEmp({ variables: { input } })
-        }
+
+    const employeeAction = async (alterEmployee, input) => {
+        await alterEmployee({ variables: { input } })
         refetch()
         handleClose()
     }
@@ -99,8 +84,7 @@ const EmployeeList = () => {
                 handleClose={handleClose}
                 selectedId={selectedId}
                 throwAlert={throwAlert}
-                delEmployee={delEmployee}
-                addOrUpdateEmp={addOrUpdateEmp}
+                employeeAction={employeeAction}
             />}
         </Container>
     )
