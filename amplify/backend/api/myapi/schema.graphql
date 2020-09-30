@@ -1,19 +1,17 @@
-type Todo @model {
-  id: ID!
-  name: String!
-  description: String
-}
+
 type Employee @model {
   id: ID!
   firstname: String!
-  lastname: String,
-  skills:[Skill!]! 
+  lastname: String
+  skills: [SkillFormat!]!
 }
 
-type Skill{
-  id:ID,
-  name:String!
+type SkillFormat {
+  id: ID
+  name: String!
 }
 
-
-
+type Skill @model {
+  id: ID!
+  name: String!
+}
