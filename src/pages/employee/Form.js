@@ -20,22 +20,22 @@ const initialState = {
 }
 
 const EmployeeForm = (props) => {
-  const { handleClose, selectedId, throwAlert, employeeAction } = props;
+  const { handleClose, selectedId, throwAlert, employeeAction,skillsSeed } = props;
   const [state, setState] = React.useState(initialState);
   const [err, setErr] = React.useState({ firstname: '' })
-  const { data: skillData } = useQuery(gql(listSkills));
-  const { data: empData, loading, error, } = useQuery(gql(getEmployee), {
+  // const { data: skillData } = useQuery(gql(listSkills));
+  const { data: empData, error, } = useQuery(gql(getEmployee), {
     variables: {
       id: selectedId,
     },
-    skip: !selectedId
+    skip: selectedId==='0' || throwAlert
   });
   const deleteEmp = useMutation(gql(deleteEmployee));
   const addEmp = useMutation(gql(createEmployee));
   const updateEmp = useMutation(gql(updateEmployee));
 
   React.useEffect(() => {
-    if (empData.getEmployee) {
+    if (empData &&empData.getEmployee) {
       const { id, firstname, lastname, skills } = empData.getEmployee
       setState({
         id, firstname, lastname, skills: skills.length !== 0 ?
@@ -44,10 +44,9 @@ const EmployeeForm = (props) => {
     }
   }, [empData])
 
-  if (loading) return '';
   if (error) return `Error! ${error.message}`;
 
-  const skillsSeed = skillData.listSkills ? skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
+  // const skillsSeed = skillData.listSkills ? skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
 
   const onDialogClose = () => {
     setState(initialState)

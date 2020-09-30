@@ -1,6 +1,6 @@
 import React from 'react';
 import Table from '../../components/Table'
-import { listEmployees } from '../../graphql/queries'
+import { listEmployees, listSkills } from '../../graphql/queries'
 import gql from 'graphql-tag'
 import { useQuery } from "react-apollo-hooks";
 import EmployeeForm from './Form'
@@ -22,7 +22,9 @@ const EmployeeList = () => {
     const { open, selectedId, throwAlert } = state
     const { loading, error, data, refetch } = useQuery(gql(listEmployees));
     const [employees, setEmployeeList] = React.useState([])
-
+    const { data: skillData } = useQuery(gql(listSkills));
+    const skillsSeed = skillData.listSkills ?
+        skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
     React.useEffect(() => {
         if (data.listEmployees) {
             data.listEmployees.items.map((emp) => {
@@ -45,9 +47,9 @@ const EmployeeList = () => {
     };
 
     const employeeAction = async (alterEmployee, input) => {
+        handleClose()
         await alterEmployee({ variables: { input } })
         refetch()
-        handleClose()
     }
     const handleClose = () => {
         setState({ open: false, selectedId: '0', throwAlert: false });
@@ -85,6 +87,7 @@ const EmployeeList = () => {
                 selectedId={selectedId}
                 throwAlert={throwAlert}
                 employeeAction={employeeAction}
+                skillsSeed={skillsSeed}
             />}
         </Container>
     )

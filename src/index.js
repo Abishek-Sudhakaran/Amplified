@@ -25,7 +25,7 @@ const client = new AWSAppSyncClient({
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: {
-        fetchPolicy: 'cache-and-network', // <-- HERE: check the apollo fetch policy options
+        fetchPolicy: 'cache-and-network', 
         errorPolicy: 'ignore'
       },
       query: {

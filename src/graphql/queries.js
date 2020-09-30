@@ -58,6 +58,8 @@ export const listSkills = /* GraphQL */ `
       items {
         id
         name
+        createdAt
+        updatedAt
       }
       nextToken
     }
