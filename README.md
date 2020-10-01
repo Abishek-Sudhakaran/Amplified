@@ -1,53 +1,60 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+**Getting Started:
+we need to install the Amplify command line tool which is used to used to create and maintain serverless backends on AWS.
 
-In the project directory, you can run:
+**npm install -g @aws-amplify/cli
 
-### `yarn start`
+Once you have successfully installed it, you need to configure your AWS account by running the following command.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**amplify configure
 
-The page will reload if you make edits.<br />
+amplify configure will ask you to sign into the AWS Console.
 
+Once you’re signed in, Amplify CLI will ask you to create an IAM user.
 
-### `yarn eject`
+Specify the AWS Region
+? region:  # Your preferred region
+Specify the username of the new IAM user:
+? user name:  # User name for Amplify IAM user
+Complete the user creation using the AWS console
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+After creating user,provide the secret access key and access key.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+After successful creation of user lets initialize amplify
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+**Create React App
+npx create-react-app react-amplified
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+**Adding GraphQL Backend
 
-## Learn More
+**amplify init
+Enter the name and others details it asks and profile created in amplify configure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Once you successfully initialized the amplify project Its time to add an AppSync graphql API to our project by running the following command.
+ **amplify add api
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+ ? Please select from one of the below-mentioned services (Use arrow keys)
+❯ GraphQL
+  REST
 
-### Code Splitting
+Name your GraphQL endpoint and choose authorization type Api key.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+? Please select from one of the below mentioned services GraphQL
+? Provide API name: awsgraphqlreact
+? Choose an authorization type for the API (Use arrow keys)
+❯ API key
+  Amazon Cognito User Pool
 
-### Analyzing the Bundle Size
+? Do you have an annotated GraphQL schema? No
+? Do you want a guided schema creation? Yes
+? What best describes your project: Single object with fields (e.g., “Todo” with
+ ID, name, description)
+? Do you want to edit the schema now? Yes
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+Now run the below command to update your backend schema.
+**amplify push
 
-### Making a Progressive Web App
+after push api key and graphql endpoint are generated
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Thank you!
