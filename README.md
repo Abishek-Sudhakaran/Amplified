@@ -1,60 +1,92 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-**Getting Started:
-we need to install the Amplify command line tool which is used to used to create and maintain serverless backends on AWS.
+## Getting Started with the Amplify Framework
 
-**npm install -g @aws-amplify/cli
+We need to install the Amplify command line tool which is used create and maintain serverless backends on AWS.
 
-Once you have successfully installed it, you need to configure your AWS account by running the following command.
+**npm install -g @aws-amplify/cli**
 
-**amplify configure
+Once you have successfully installed it, you need to configure your AWS account
+
+**amplify configure**
 
 amplify configure will ask you to sign into the AWS Console.
 
 Once you’re signed in, Amplify CLI will ask you to create an IAM user.
 
 Specify the AWS Region
-? region:  # Your preferred region
+? region: # Your preferred region
 Specify the username of the new IAM user:
-? user name:  # User name for Amplify IAM user
+? user name: # User name for Amplify IAM user
 Complete the user creation using the AWS console
 
 After creating user,provide the secret access key and access key.
 
 After successful creation of user lets initialize amplify
 
-**Create React App
-npx create-react-app react-amplified
+## Create React App
 
-**Adding GraphQL Backend
+Use the create-react-app to create the react app.
 
-**amplify init
-Enter the name and others details it asks and profile created in amplify configure
+**:npx create-react-app react-amplified**
+cd awsgraphql-react
 
-Once you successfully initialized the amplify project Its time to add an AppSync graphql API to our project by running the following command.
- **amplify add api
+## Adding GraphQL Backend
 
- ? Please select from one of the below-mentioned services (Use arrow keys)
+Initialize the new amplify project.
+
+**amplify init**
+
+You’ll be prompted for some information about the app.
+
+After initializing open your project folder in your code editor you will see a amplify folder and .amplifyrc 
+file is added to your react app.
+
+## Adding API
+
+Run the following command
+**amplify add api**
+
+Select the following
+
+? Please select from one of the below-mentioned services (Use arrow keys)
 ❯ GraphQL
-  REST
-
-Name your GraphQL endpoint and choose authorization type Api key.
+REST
 
 ? Please select from one of the below mentioned services GraphQL
 ? Provide API name: awsgraphqlreact
 ? Choose an authorization type for the API (Use arrow keys)
 ❯ API key
-  Amazon Cognito User Pool
-
 ? Do you have an annotated GraphQL schema? No
 ? Do you want a guided schema creation? Yes
 ? What best describes your project: Single object with fields (e.g., “Todo” with
- ID, name, description)
+ID, name, description)
 ? Do you want to edit the schema now? Yes
 
 Now run the below command to update your backend schema.
-**amplify push
+**amplify push**
 
-after push api key and graphql endpoint are generated
+Now a api key and a graphql endpoint are generated.
+
+In frontend use Appolo client for graphql queries.
+
+## Hosting the app
+
+By using amplify-cli we can also host our react app in Aws s3 bucket and CloudFront.
+
+**amplify hosting add**
+
+Select the following from the prompt
+eg:
+? Select the plugin module to execute Amazon CloudFront and S3
+? Select the environment setup: DEV (S3 only with HTTP)
+? hosting bucket name reactamplified-20201001015943-hostingbucket
+? index doc for the website index.html
+? error doc for the website index.html
+
+
+Now you can now publish your app using the following command:
+
+**amplify publish**
 
 Thank you!
