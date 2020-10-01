@@ -4,50 +4,49 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 We need to install the Amplify command line tool which is used create and maintain serverless backends on AWS.
 
-**npm install -g @aws-amplify/cli**
+**command:npm install -g @aws-amplify/cli**
 
 Once you have successfully installed it, you need to configure your AWS account
 
-**amplify configure**
+**command:amplify configure**
 
 amplify configure will ask you to sign into the AWS Console.
 
 Once you’re signed in, Amplify CLI will ask you to create an IAM user.
 
 Specify the AWS Region
-? region: # Your preferred region
+? region: # Your preferred region,
 Specify the username of the new IAM user:
-? user name: # User name for Amplify IAM user
-Complete the user creation using the AWS console
+? user name: # User name for Amplify IAM user,
 
 After creating user,provide the secret access key and access key.
 
-After successful creation of user lets initialize amplify
+After successful creation, lets initialize amplify
 
-## Create React App
+## Amplify Initialization
 
 Use the create-react-app to create the react app.
 
-**:npx create-react-app react-amplified**
+**command:npx create-react-app react-amplified**
 cd awsgraphql-react
 
 ## Adding GraphQL Backend
 
 Initialize the new amplify project.
 
-**amplify init**
+**command:amplify init**
 
 You’ll be prompted for some information about the app.
 
-After initializing open your project folder in your code editor you will see a amplify folder and .amplifyrc 
+After initializing open your project folder in your code editor you will see a amplify folder and .amplifyrc
 file is added to your react app.
 
 ## Adding API
 
 Run the following command
-**amplify add api**
+**command:amplify add api**
 
-Select the following
+You will be prompted to add basic details of the api as below
 
 ? Please select from one of the below-mentioned services (Use arrow keys)
 ❯ GraphQL
@@ -64,7 +63,7 @@ ID, name, description)
 ? Do you want to edit the schema now? Yes
 
 Now run the below command to update your backend schema.
-**amplify push**
+**command:amplify push**
 
 Now a api key and a graphql endpoint are generated.
 
@@ -74,7 +73,7 @@ In frontend use Appolo client for graphql queries.
 
 By using amplify-cli we can also host our react app in Aws s3 bucket and CloudFront.
 
-**amplify hosting add**
+**command:amplify hosting add**
 
 Select the following from the prompt
 eg:
@@ -84,9 +83,13 @@ eg:
 ? index doc for the website index.html
 ? error doc for the website index.html
 
+Then run the following command:
 
-Now you can now publish your app using the following command:
+**command:amplify publish**
 
-**amplify publish**
+Now your app is published successfully.
 
-Thank you!
+After publishing, your terminal will display your app URL hosted.
+Whenever you have additional changes to publish, just re-run the amplify publish command.
+
+Happy coding...!

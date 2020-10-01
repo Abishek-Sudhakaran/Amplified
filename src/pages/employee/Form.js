@@ -118,14 +118,14 @@ const EmployeeForm = (props) => {
 
   const triggerEmployeeAction = () => {
     if (throwAlert) {
-      employeeAction(deleteEmp, { id: selectedId })
+      employeeAction(deleteEmp, { id: selectedId },'del')
     } else {
       if (state.firstname.trim().length === 0) {
         setErr({ ...err, firstname: 'Name is Required' })
         return;
       }
       selectedId !== '0' ? employeeAction(updateEmp, state)
-        : employeeAction(addEmp, state)
+        : employeeAction(addEmp, state,'add')
     }
   }
 

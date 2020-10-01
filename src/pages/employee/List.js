@@ -20,16 +20,16 @@ const tableHeader = () => {
 const EmployeeList = () => {
     const [state, setState] = React.useState({ open: false, selectedId: '0', throwAlert: false });
     const { open, selectedId, throwAlert } = state
-    const { loading, error, data, refetch } = useQuery(gql(listEmployees));
+    const { loading, error, data } = useQuery(gql(listEmployees));
     const [employees, setEmployeeList] = React.useState([])
     const { data: skillData } = useQuery(gql(listSkills));
     const skillsSeed = skillData.listSkills ?
         skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
     React.useEffect(() => {
-        if (data.listEmployees) {
+        if (data && data.listEmployees) {
             data.listEmployees.items.map((emp) => {
-                emp.fullname = `${emp.firstname} ${emp.lastname}`
-                emp.skillset = emp.skills.map((skills, i) => {
+                emp.fullname = `${emp.firstname} ${emp.lastname || ''}`
+                emp.skillset = emp.skills && emp.skills.map((skills, i) => {
                     return `${skills.name}${i + 1 === emp.skills.length ? '' : ', '}`
                 })
             })
@@ -46,10 +46,37 @@ const EmployeeList = () => {
         setState({ open: true, selectedId: emp.id, throwAlert: alert || false })
     };
 
-    const employeeAction = async (alterEmployee, input) => {
+    const employeeAction = async (alterEmployee, input, type) => {
         handleClose()
-        await alterEmployee({ variables: { input } })
-        refetch()
+        await alterEmployee({
+            variables: { input },
+            optimisticResponse: () => ({
+                alterEmployee: {
+                    __typename: "ModelEmployeeConnection",
+                    ...input
+                }
+            }),
+            update: (cache, { data: { deleteEmployee, createEmployee } }) => {
+                const query = gql(listEmployees);
+                const data = cache.readQuery({ query });
+                if (deleteEmployee) {
+                    data.listEmployees.items = [
+                        ...data.listEmployees.items.filter(item =>
+                            item.id !== input.id)
+                    ];
+                    cache.writeQuery({ query, data });
+                }
+                if (createEmployee) {
+                    const isEmpExists = data.listEmployees.items.find((it) => it.id === createEmployee.id);
+                    if (!isEmpExists) {
+                        data.listEmployees.items = [
+                            ...data.listEmployees.items, createEmployee
+                        ];
+                        cache.writeQuery({ query, data });
+                    }
+                }
+            }
+        })
     }
     const handleClose = () => {
         setState({ open: false, selectedId: '0', throwAlert: false });
