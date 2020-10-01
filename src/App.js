@@ -5,7 +5,6 @@ import Layout from './components/Layout'
 
 
 const App = (props) => {
-  console.log(props)
   return (
     <Layout>
       <Switch>

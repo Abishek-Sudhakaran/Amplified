@@ -7,7 +7,7 @@ type Employee @model {
 }
 
 type SkillFormat {
-  id: ID
+  id: ID!
   name: String!
 }
 

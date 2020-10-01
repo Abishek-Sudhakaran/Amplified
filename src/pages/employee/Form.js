@@ -5,7 +5,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {  getEmployee } from '../../graphql/queries'
+import { getEmployee } from '../../graphql/queries'
 import { createEmployee, updateEmployee, deleteEmployee } from '../../graphql/mutations'
 import gql from 'graphql-tag'
 import { useQuery, useMutation } from "react-apollo-hooks";
@@ -20,22 +20,21 @@ const initialState = {
 }
 
 const EmployeeForm = (props) => {
-  const { handleClose, selectedId, throwAlert, employeeAction,skillsSeed } = props;
+  const { handleClose, selectedId, throwAlert, employeeAction, skillsSeed } = props;
   const [state, setState] = React.useState(initialState);
   const [err, setErr] = React.useState({ firstname: '' })
-  // const { data: skillData } = useQuery(gql(listSkills));
   const { data: empData, error, } = useQuery(gql(getEmployee), {
     variables: {
       id: selectedId,
     },
-    skip: selectedId==='0' || throwAlert
+    skip: selectedId === '0' || throwAlert
   });
   const deleteEmp = useMutation(gql(deleteEmployee));
   const addEmp = useMutation(gql(createEmployee));
   const updateEmp = useMutation(gql(updateEmployee));
 
   React.useEffect(() => {
-    if (empData &&empData.getEmployee) {
+    if (empData && empData.getEmployee) {
       const { id, firstname, lastname, skills } = empData.getEmployee
       setState({
         id, firstname, lastname, skills: skills.length !== 0 ?
@@ -46,7 +45,6 @@ const EmployeeForm = (props) => {
 
   if (error) return `Error! ${error.message}`;
 
-  // const skillsSeed = skillData.listSkills ? skillData.listSkills.items.map(({ id, name }) => ({ id, name })) : []
 
   const onDialogClose = () => {
     setState(initialState)
@@ -118,14 +116,34 @@ const EmployeeForm = (props) => {
 
   const triggerEmployeeAction = () => {
     if (throwAlert) {
-      employeeAction(deleteEmp, { id: selectedId },'del')
+      employeeAction(deleteEmp, { id: selectedId }, {
+        deleteEmployee: {
+          __typename: 'Employee',
+          ...empData
+        }
+      })
     } else {
       if (state.firstname.trim().length === 0) {
         setErr({ ...err, firstname: 'Name is Required' })
         return;
       }
-      selectedId !== '0' ? employeeAction(updateEmp, state)
-        : employeeAction(addEmp, state,'add')
+      selectedId !== '0' ? employeeAction(updateEmp, state, {
+        updateEmployee: {
+          __typename: 'Employee',
+          ...state, skills: state.skills.map((sk) => {
+            return { ...sk, __typename: 'SkillFormat' }
+          })
+        }
+      })
+        : employeeAction(addEmp, state, {
+          createEmployee: {
+            __typename: 'Employee',
+            ...state, id: '... Loading',
+            skills: state.skills.map((sk) => {
+              return { ...sk, __typename: 'SkillFormat' }
+            })
+          }
+        })
     }
   }
 
