@@ -16,6 +16,7 @@ export default function Layout(props) {
             <AppBar
                 position="sticky"
                 classes={{ root: classes.root }}
+                style={{ background: '#232f3e' }}
             >
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
@@ -24,7 +25,9 @@ export default function Layout(props) {
                          </Link>
                     </Typography>
                     <IconButton edge="start" color="inherit" aria-label="menu">
-                        <AdbIcon fontSize={'large'} />
+                        <Link to="/" className={classes.link} >
+                            <AdbIcon fontSize={'large'} />
+                        </Link>
                     </IconButton>
                 </Toolbar>
             </AppBar>

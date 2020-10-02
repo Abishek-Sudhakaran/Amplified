@@ -10,7 +10,7 @@ import { Grid } from "@material-ui/core";
 
 const tableHeader = () => {
     return [
-        { label: "Employee Id", accesor: "id", minWidth: '30%' },
+        { label: "S No", accesor: "index", minWidth: '10%' },
         { label: "Name", accesor: "fullname", minWidth: '20%' },
         { label: "Skills", accesor: "skillset", minWidth: '30%' },
     ];
@@ -20,7 +20,7 @@ const tableHeader = () => {
 const EmployeeList = () => {
     const [state, setState] = React.useState({ open: false, selectedId: '0', throwAlert: false });
     const { open, selectedId, throwAlert } = state
-    const {  error, data } = useQuery(gql(listEmployees));
+    const { error, data } = useQuery(gql(listEmployees));
     const [employees, setEmployeeList] = React.useState([])
     const { data: skillData } = useQuery(gql(listSkills));
     const skillsSeed = skillData.listSkills ?
@@ -32,7 +32,8 @@ const EmployeeList = () => {
 
     const structureEmployees = (data) => {
         if (data && data.listEmployees) {
-            data.listEmployees.items.map((emp) => {
+            data.listEmployees.items.map((emp, index) => {
+                emp.index = index + 1
                 emp.fullname = `${emp.firstname} ${emp.lastname || ''}`
                 emp.skillset = emp.skills && emp.skills.map((skills, i) => {
                     return `${skills.name}${i + 1 === emp.skills.length ? '' : ', '}`
@@ -83,7 +84,7 @@ const EmployeeList = () => {
                         ...data.listEmployees.items.filter(item =>
                             item.id !== input.id)
                     ];
-                    updateCache(cache,query, data)
+                    updateCache(cache, query, data)
                 }
                 else if (createEmployee) {
                     const isEmpExists = data.listEmployees.items.find((it) => it.id === createEmployee.id);
@@ -91,7 +92,7 @@ const EmployeeList = () => {
                         data.listEmployees.items = [
                             ...data.listEmployees.items, createEmployee
                         ];
-                        updateCache(cache,query, data)
+                        updateCache(cache, query, data)
                     }
                 } else {
                     const empIndex = data.listEmployees.items.findIndex((it) => it.id === updateEmployee.id);
@@ -105,21 +106,22 @@ const EmployeeList = () => {
             }
         })
     }
-    const updateCache = (cache,query, data) => {
+    const updateCache = (cache, query, data) => {
         structureEmployees(data)
         cache.writeQuery({ query, data });
     }
     const handleClose = () => {
         setState({ open: false, selectedId: '0', throwAlert: false });
     };
-    const tableBody = () => {
+    const renderTable = () => {
         return <Grid
             spacing={2}
             container
             justify={'flex-end'}
         >
             <Grid item >
-                <Button variant="contained" color="primary"
+                <Button variant="contained" color='primary'
+                    style={{ backgroundColor: '#232f3e' }}
                     onClick={() => setState({ ...state, open: true })}>
                     Add Employee
              </Button>
@@ -139,7 +141,7 @@ const EmployeeList = () => {
     }
     return (
         <Container fixed>
-            {tableBody()}
+            {renderTable()}
             {open && <EmployeeForm
                 handleClose={handleClose}
                 selectedId={selectedId}

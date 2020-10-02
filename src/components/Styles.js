@@ -6,7 +6,6 @@ import TableRow from "@material-ui/core/TableRow";
 const StyledTableCell = withStyles(theme => ({
     head: {
         backgroundColor: "#e8e8e8",
-
     },
     body: {
         fontSize: 14,
@@ -17,34 +16,27 @@ const StyledTableRow = withStyles(theme => ({
     root: {
         "&:nth-of-type(even)": {
             backgroundColor: theme.palette.background.default
-        }
+        },
     }
 }))(TableRow);
 
-const tableStyles = makeStyles(theme => ({
-    table: {
-        width: "100% !important"
-    },
-    margin: {
-        margin: theme.spacing(-1.8)
-    }
-}));
+
 
 const appBarStyles = makeStyles(() =>
     createStyles({
         root: {
             flexGrow: 1,
-            marginBottom: 20
+            marginBottom: 30,
         },
         title: {
             flexGrow: 1,
         },
         link: {
             color: '#FFF',
-            textDecoration: 'none'
+            textDecoration: 'none',
         }
     }),
 );
 
 
-export { StyledTableCell, StyledTableRow, tableStyles,appBarStyles }
+export { StyledTableCell, StyledTableRow,appBarStyles }

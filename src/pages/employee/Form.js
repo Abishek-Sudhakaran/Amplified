@@ -22,7 +22,7 @@ const initialState = {
 const EmployeeForm = (props) => {
   const { handleClose, selectedId, throwAlert, employeeAction, skillsSeed } = props;
   const [state, setState] = React.useState(initialState);
-  const [err, setErr] = React.useState({ firstname: '' })
+  const [err, setErr] = React.useState({ firstname: '', skills: '' })
   const { data: empData, error, } = useQuery(gql(getEmployee), {
     variables: {
       id: selectedId,
@@ -50,6 +50,12 @@ const EmployeeForm = (props) => {
     setState(initialState)
     handleClose()
   }
+  const onInputChange = (key, event) => {
+    const val = { ...state }
+    val[key] = event.target.value
+    setState(val)
+    if (err[key]) { setErr({ ...err, firstname: '' }) }
+  }
   const renderTextField = (label, key) => (
     <Grid item xs={12} >
       <TextField
@@ -57,19 +63,17 @@ const EmployeeForm = (props) => {
         error={err[key] ? true : false}
         margin="dense"
         label={label}
-        onChange={(event) => {
-          const val = { ...state }
-          val[key] = event.target.value
-          setState(val)
-          if (err[key]) { setErr({ ...err, firstname: '' }) }
-        }}
+        onChange={(event) => onInputChange(key, event)}
         value={state[key]}
         helperText={err[key]}
         fullWidth
       />
     </Grid>
-
   );
+  const onSkillChange = (event,value) => {
+    setState({ ...state, skills: value })
+    if(value.length) setErr({ ...err, skills: '' })
+  }
   const renderFormContent = () => (
     <DialogContent>
       <Grid
@@ -85,18 +89,16 @@ const EmployeeForm = (props) => {
             id="tags-standard"
             options={skillsSeed}
             getOptionLabel={(option) => option.name}
-            onChange={(event, value) => setState({
-              ...state,
-              skills: value
-            })
-            }
+            onChange={onSkillChange}
             value={state.skills}
             getOptionSelected={(option, value) => option.id === value.id}
             renderInput={(params) => (
               <TextField
                 {...params}
+                error={err['skills'] ? true : false}
                 variant="standard"
                 label="Skills"
+                helperText={err['skills']}
               />
             )}
           />
@@ -123,8 +125,11 @@ const EmployeeForm = (props) => {
         }
       })
     } else {
-      if (state.firstname.trim().length === 0) {
-        setErr({ ...err, firstname: 'Name is Required' })
+      setErr({
+        ...err, firstname: state.firstname.trim().length === 0 ? 'Name is Required' : '',
+        skills: state.skills.length === 0 ? 'Please provide a skill' : ''
+      })
+      if (state.firstname.trim().length === 0 || state.skills.length === 0) {
         return;
       }
       selectedId !== '0' ? employeeAction(updateEmp, state, {
